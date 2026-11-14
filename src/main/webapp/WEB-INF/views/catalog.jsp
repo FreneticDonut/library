@@ -33,6 +33,28 @@
                     </tr>
                 </c:forEach>
             </table>
+
+            <c:if test="${totalPages > 1}">
+                <p>
+                    <c:if test="${page > 1}">
+                        <c:url var="prevUrl" value="/catalog">
+                            <c:param name="q" value="${q}"/>
+                            <c:param name="page" value="${page - 1}"/>
+                        </c:url>
+                        <a href="<c:out value='${prevUrl}'/>">&larr; Назад</a>
+                    </c:if>
+
+                    Страница ${page} из ${totalPages}
+
+                    <c:if test="${page < totalPages}">
+                        <c:url var="nextUrl" value="/catalog">
+                            <c:param name="q" value="${q}"/>
+                            <c:param name="page" value="${page + 1}"/>
+                        </c:url>
+                        <a href="<c:out value='${nextUrl}'/>">Вперёд &rarr;</a>
+                    </c:if>
+                </p>
+            </c:if>
         </c:otherwise>
     </c:choose>
 </body>
