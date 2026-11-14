@@ -21,9 +21,16 @@ public class CatalogServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        List<Book> books = bookDao.findPage("", 10, 0);
+        String query = req.getParameter("q");
+        if (query == null) {
+            query = "";
+        }
+        query = query.trim();
+
+        List<Book> books = bookDao.findPage(query, 10, 0);
 
         req.setAttribute("books", books);
+        req.setAttribute("q", query);
         req.getRequestDispatcher("/WEB-INF/views/catalog.jsp").forward(req, resp);
     }
 }
