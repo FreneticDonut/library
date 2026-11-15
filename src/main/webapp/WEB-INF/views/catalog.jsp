@@ -1,5 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<c:set var="isLibrarian" value="${sessionScope.currentUser.role == 'LIBRARIAN'}"/>
+<c:set var="isReader" value="${sessionScope.currentUser.role == 'READER'}"/>
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,29 +10,32 @@
 </head>
 <body>
     <h1>Каталог книг</h1>
-    <p>
+
+    <div>
         <c:choose>
             <c:when test="${not empty sessionScope.currentUser}">
                 Вы вошли как <b><c:out value="${sessionScope.currentUser.name}"/></b>
                 <form method="post" action="logout" style="display:inline">
                     <button type="submit">Выйти</button>
-                    <a href="my/books">Мои книги</a>
-                    <c:if test="${sessionScope.currentUser.role == 'LIBRARIAN'}">
+                </form>
+                <a href="my/books">Мои книги</a>
+                <c:if test="${isLibrarian}">
                     <a href="admin/home">Панель библиотекаря</a>
                 </c:if>
-                </form>
             </c:when>
             <c:otherwise>
                 <a href="login">Войти</a> | <a href="register">Регистрация</a>
             </c:otherwise>
         </c:choose>
-    </p>
-        <c:if test="${not empty flashMessage}">
+    </div>
+
+    <c:if test="${not empty flashMessage}">
         <p style="color: green"><c:out value="${flashMessage}"/></p>
     </c:if>
     <c:if test="${not empty flashError}">
         <p style="color: red"><c:out value="${flashError}"/></p>
     </c:if>
+
     <form method="get" action="catalog">
         <input type="text" name="q" value="<c:out value='${q}'/>" placeholder="Название книги">
         <button type="submit">Найти</button>
@@ -46,7 +51,7 @@
                     <th>Название</th>
                     <th>Год</th>
                     <th>Свободно</th>
-                        <c:if test="${sessionScope.currentUser.role == 'LIBRARIAN'}">
+                    <c:if test="${isLibrarian || isReader}">
                         <th></th>
                     </c:if>
                 </tr>
@@ -55,7 +60,8 @@
                         <td><c:out value="${book.title}"/></td>
                         <td><c:out value="${book.publishYear}"/></td>
                         <td>${book.availableCopies} из ${book.totalCopies}</td>
-                        <c:if test="${sessionScope.currentUser.role == 'LIBRARIAN'}">
+
+                        <c:if test="${isLibrarian}">
                             <td>
                                 <a href="${pageContext.request.contextPath}/admin/books/edit?id=${book.id}">Изменить</a>
                                 <form method="post"
@@ -65,6 +71,24 @@
                                     <input type="hidden" name="id" value="${book.id}">
                                     <button type="submit">Удалить</button>
                                 </form>
+                            </td>
+                        </c:if>
+
+                        <c:if test="${isReader}">
+                            <td>
+                                <c:choose>
+                                    <c:when test="${book.availableCopies > 0}">
+                                        <form method="post"
+                                              action="${pageContext.request.contextPath}/my/orders"
+                                              style="display:inline">
+                                            <input type="hidden" name="bookId" value="${book.id}">
+                                            <input type="hidden" name="q" value="<c:out value='${q}'/>">
+                                            <input type="hidden" name="page" value="${page}">
+                                            <button type="submit">Заказать</button>
+                                        </form>
+                                    </c:when>
+                                    <c:otherwise>Нет в наличии</c:otherwise>
+                                </c:choose>
                             </td>
                         </c:if>
                     </tr>
