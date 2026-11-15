@@ -1,0 +1,290 @@
+:root {
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --text: #1f2933;
+    --muted: #66707a;
+    --border: #d9dde2;
+    --accent: #2f5f98;
+    --accent-dark: #244a77;
+    --danger: #b3261e;
+    --ok-bg: #e6f4ea;
+    --ok-text: #1e6b34;
+    --err-bg: #fdecea;
+    --err-text: #8c1d18;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    line-height: 1.5;
+}
+
+a {
+    color: var(--accent);
+}
+
+a:hover {
+    color: var(--accent-dark);
+}
+
+/* ---------- шапка ---------- */
+
+.site-header {
+    background: var(--accent);
+    color: #fff;
+}
+
+.header-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 12px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+}
+
+.site-header a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.site-header a:hover {
+    text-decoration: underline;
+}
+
+.brand {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.main-nav,
+.user-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+}
+
+.user-nav {
+    margin-left: auto;
+}
+
+.user-name {
+    opacity: 0.9;
+}
+
+/* ---------- содержимое ---------- */
+
+.container {
+    max-width: 960px;
+    margin: 24px auto;
+    padding: 0 16px;
+}
+
+h1 {
+    margin: 0 0 16px;
+    font-size: 1.6rem;
+}
+
+h2 {
+    margin: 28px 0 12px;
+    font-size: 1.2rem;
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.site-footer {
+    max-width: 960px;
+    margin: 32px auto 24px;
+    padding: 0 16px;
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.muted {
+    color: var(--muted);
+}
+
+/* ---------- сообщения ---------- */
+
+.msg {
+    margin: 0 0 16px;
+    padding: 10px 14px;
+    border-radius: 6px;
+}
+
+.msg-ok {
+    background: var(--ok-bg);
+    color: var(--ok-text);
+}
+
+.msg-error {
+    background: var(--err-bg);
+    color: var(--err-text);
+}
+
+/* ---------- таблицы ---------- */
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+th,
+td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: middle;
+}
+
+th {
+    background: #eef1f5;
+    font-weight: 600;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+.actions {
+    white-space: nowrap;
+}
+
+.overdue {
+    color: var(--danger);
+    font-weight: 600;
+}
+
+/* ---------- формы и кнопки ---------- */
+
+form.inline {
+    display: inline;
+}
+
+label {
+    display: block;
+    margin-bottom: 14px;
+    font-weight: 500;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"] {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    margin-top: 4px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font: inherit;
+}
+
+input:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}
+
+button,
+.btn {
+    display: inline-block;
+    padding: 7px 14px;
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+button:hover,
+.btn:hover {
+    background: var(--accent-dark);
+    border-color: var(--accent-dark);
+    color: #fff;
+}
+
+.btn-danger {
+    background: #fff;
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.btn-danger:hover {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: #fff;
+}
+
+.btn-light {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.7);
+    color: #fff;
+    padding: 4px 12px;
+}
+
+.btn-light:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #fff;
+}
+
+.search {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.search input[type="text"] {
+    margin-top: 0;
+    flex: 1;
+    min-width: 200px;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.link-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.link-list li {
+    margin-bottom: 10px;
+}

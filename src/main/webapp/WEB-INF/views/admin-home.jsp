@@ -1,18 +1,16 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Панель библиотекаря</title>
-</head>
-<body>
-    <h1>Панель библиотекаря</h1>
+<c:set var="pageTitle" value="Панель библиотекаря"/>
+<%@ include file="/WEB-INF/views/fragments/header.jspf" %>
 
-    <p>Здравствуйте, <b><c:out value="${sessionScope.currentUser.name}"/></b>!</p>
-        <p><a href="${pageContext.request.contextPath}/admin/books/new">Добавить книгу</a></p>
-        <p><a href="${pageContext.request.contextPath}/admin/loans">Заказы и выдачи</a></p>
+<h1>Панель библиотекаря</h1>
 
-    <p><a href="${pageContext.request.contextPath}/catalog">В каталог</a></p>
-</body>
-</html>
+<div class="card">
+    <ul class="link-list">
+        <li><a href="${ctx}/admin/books/new">Добавить книгу</a></li>
+        <li><a href="${ctx}/admin/loans">Заказы и выдачи</a></li>
+        <li><a href="${ctx}/catalog">Каталог (изменение и удаление книг)</a></li>
+    </ul>
+</div>
+
+<%@ include file="/WEB-INF/views/fragments/footer.jspf" %>
