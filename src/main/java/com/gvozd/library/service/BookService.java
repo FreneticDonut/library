@@ -1,6 +1,7 @@
 package com.gvozd.library.service;
 
 import com.gvozd.library.dao.BookDao;
+import com.gvozd.library.exception.NotFoundException;
 import com.gvozd.library.exception.ValidationException;
 import com.gvozd.library.model.Book;
 
@@ -14,6 +15,8 @@ public class BookService {
     private static final int MIN_YEAR = 1000;
     private static final int MAX_COPIES = 1000;
     private static final Pattern ISBN_PATTERN = Pattern.compile("^(\\d{13}|\\d{9}[\\dX])$");
+
+    private record BookData(String title, String isbn, Integer year, int copies) {}
 
     private final BookDao bookDao;
     private final int pageSize;
@@ -36,7 +39,52 @@ public class BookService {
         return new CatalogPage(books, q, page, totalPages);
     }
 
+    public Book getBook(long id) {
+        return bookDao.findById(id)
+                .orElseThrow(() -> new NotFoundException("Книга не найдена"));
+    }
+
     public Book addBook(String title, String isbn, String publishYear, String totalCopies) {
+        BookData data = validate(title, isbn, publishYear, totalCopies);
+
+        if (data.isbn() != null && bookDao.existsByIsbn(data.isbn())) {
+            throw new ValidationException("Книга с таким ISBN уже есть в каталоге");
+        }
+
+        return bookDao.save(new Book(null, data.title(), data.isbn(), data.year(),
+                data.copies(), data.copies()));
+    }
+
+    public Book updateBook(long id, String title, String isbn, String publishYear,
+                           String totalCopies) {
+        Book book = getBook(id);
+        BookData data = validate(title, isbn, publishYear, totalCopies);
+
+        int borrowed = book.getTotalCopies() - book.getAvailableCopies();
+        if (data.copies() < borrowed) {
+            throw new ValidationException(
+                    "Нельзя указать меньше экземпляров, чем сейчас на руках: " + borrowed);
+        }
+
+        if (data.isbn() != null) {
+            bookDao.findByIsbn(data.isbn())
+                    .filter(other -> !other.getId().equals(id))
+                    .ifPresent(other -> {
+                        throw new ValidationException("Книга с таким ISBN уже есть в каталоге");
+                    });
+        }
+
+        book.setTitle(data.title());
+        book.setIsbn(data.isbn());
+        book.setPublishYear(data.year());
+        book.setTotalCopies(data.copies());
+        book.setAvailableCopies(data.copies() - borrowed);
+
+        bookDao.update(book);
+        return book;
+    }
+
+    private BookData validate(String title, String isbn, String publishYear, String totalCopies) {
         String trimmedTitle = (title == null) ? "" : title.trim();
         if (trimmedTitle.isEmpty() || trimmedTitle.length() > MAX_TITLE_LENGTH) {
             throw new ValidationException(
@@ -51,11 +99,7 @@ public class BookService {
         Integer year = parseYear(publishYear);
         int copies = parseCopies(totalCopies);
 
-        if (normalizedIsbn != null && bookDao.existsByIsbn(normalizedIsbn)) {
-            throw new ValidationException("Книга с таким ISBN уже есть в каталоге");
-        }
-
-        return bookDao.save(new Book(null, trimmedTitle, normalizedIsbn, year, copies, copies));
+        return new BookData(trimmedTitle, normalizedIsbn, year, copies);
     }
 
     private static String normalizeIsbn(String isbn) {

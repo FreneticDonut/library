@@ -124,6 +124,49 @@ public class JdbcBookDao implements BookDao {
         }
     }
 
+    @Override
+    public Optional<Book> findByIsbn(String isbn) {
+        String sql = """
+                SELECT id, title, isbn, publish_year, total_copies, available_copies
+                FROM books
+                WHERE isbn = ?
+                """;
+        try (Connection c = ds.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, isbn);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? Optional.of(map(rs)) : Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка поиска книги по ISBN", e);
+        }
+    }
+
+    @Override
+    public void update(Book book) {
+        String sql = """
+                UPDATE books
+                SET title = ?, isbn = ?, publish_year = ?, total_copies = ?, available_copies = ?
+                WHERE id = ?
+                """;
+        try (Connection c = ds.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, book.getTitle());
+            ps.setString(2, book.getIsbn());
+            if (book.getPublishYear() == null) {
+                ps.setNull(3, Types.INTEGER);
+            } else {
+                ps.setInt(3, book.getPublishYear());
+            }
+            ps.setInt(4, book.getTotalCopies());
+            ps.setInt(5, book.getAvailableCopies());
+            ps.setLong(6, book.getId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка обновления книги", e);
+        }
+    }
+
     private static String like(String query) {
         String s = (query == null) ? "" : query.trim().toLowerCase();
         return "%" + s + "%";
