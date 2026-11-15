@@ -8,7 +8,19 @@
 </head>
 <body>
     <h1>Каталог книг</h1>
-
+    <p>
+        <c:choose>
+            <c:when test="${not empty sessionScope.currentUser}">
+                Вы вошли как <b><c:out value="${sessionScope.currentUser.name}"/></b>
+                <form method="post" action="logout" style="display:inline">
+                    <button type="submit">Выйти</button>
+                </form>
+            </c:when>
+            <c:otherwise>
+                <a href="login">Войти</a> | <a href="register">Регистрация</a>
+            </c:otherwise>
+        </c:choose>
+    </p>
     <form method="get" action="catalog">
         <input type="text" name="q" value="<c:out value='${q}'/>" placeholder="Название книги">
         <button type="submit">Найти</button>
