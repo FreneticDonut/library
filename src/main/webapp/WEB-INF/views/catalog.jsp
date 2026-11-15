@@ -14,6 +14,7 @@
                 Вы вошли как <b><c:out value="${sessionScope.currentUser.name}"/></b>
                 <form method="post" action="logout" style="display:inline">
                     <button type="submit">Выйти</button>
+                    <a href="my/books">Мои книги</a>
                 </form>
             </c:when>
             <c:otherwise>
