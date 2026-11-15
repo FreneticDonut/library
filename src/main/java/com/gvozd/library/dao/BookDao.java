@@ -14,4 +14,6 @@ public interface BookDao {
     Optional<Book> findById(long id);
 
     Book save(Book book);
+
+    boolean existsByIsbn(String isbn);
 }
