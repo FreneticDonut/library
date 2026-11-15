@@ -15,6 +15,9 @@
                 <form method="post" action="logout" style="display:inline">
                     <button type="submit">Выйти</button>
                     <a href="my/books">Мои книги</a>
+                    <c:if test="${sessionScope.currentUser.role == 'LIBRARIAN'}">
+                    <a href="admin/home">Панель библиотекаря</a>
+                </c:if>
                 </form>
             </c:when>
             <c:otherwise>
