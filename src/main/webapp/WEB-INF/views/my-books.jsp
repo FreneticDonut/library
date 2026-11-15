@@ -1,29 +1,17 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Мои книги</title>
-</head>
-<body>
-    <h1>Мои книги</h1>
+<c:set var="pageTitle" value="Мои книги"/>
+<%@ include file="/WEB-INF/views/fragments/header.jspf" %>
 
-    <p>Здравствуйте, <b><c:out value="${sessionScope.currentUser.name}"/></b>!</p>
+<h1>Мои книги</h1>
 
-    <c:if test="${not empty flashMessage}">
-        <p style="color: green"><c:out value="${flashMessage}"/></p>
-    </c:if>
-    <c:if test="${not empty flashError}">
-        <p style="color: red"><c:out value="${flashError}"/></p>
-    </c:if>
-
-    <c:choose>
-        <c:when test="${empty loans}">
-            <p>У вас пока нет заказов. Выберите книгу в каталоге.</p>
-        </c:when>
-        <c:otherwise>
-            <table border="1" cellpadding="6">
+<c:choose>
+    <c:when test="${empty loans}">
+        <p class="muted">У вас пока нет заказов. Выберите книгу в <a href="${ctx}/catalog">каталоге</a>.</p>
+    </c:when>
+    <c:otherwise>
+        <div class="table-wrap">
+            <table>
                 <tr>
                     <th>Книга</th>
                     <th>Статус</th>
@@ -43,23 +31,20 @@
                         <td>
                             <c:if test="${loan.status == 'ACTIVE'}">${loan.dueDate}</c:if>
                         </td>
-                        <td>
+                        <td class="actions">
                             <c:if test="${loan.status == 'ORDERED'}">
-                                <form method="post"
-                                      action="${pageContext.request.contextPath}/my/orders/cancel"
-                                      style="display:inline"
+                                <form method="post" action="${ctx}/my/orders/cancel" class="inline"
                                       onsubmit="return confirm('Отменить заказ?');">
                                     <input type="hidden" name="loanId" value="${loan.loanId}">
-                                    <button type="submit">Отменить</button>
+                                    <button type="submit" class="btn-danger">Отменить</button>
                                 </form>
                             </c:if>
                         </td>
                     </tr>
                 </c:forEach>
             </table>
-        </c:otherwise>
-    </c:choose>
+        </div>
+    </c:otherwise>
+</c:choose>
 
-    <p><a href="${pageContext.request.contextPath}/catalog">В каталог</a></p>
-</body>
-</html>
+<%@ include file="/WEB-INF/views/fragments/footer.jspf" %>

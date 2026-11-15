@@ -1,0 +1,49 @@
+<%-- Общая шапка. Страница перед включением должна объявить taglib "c" и задать pageTitle --%>
+<c:set var="ctx" value="${pageContext.request.contextPath}"/>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><c:out value="${pageTitle}"/> — Библиотека</title>
+    <link rel="stylesheet" href="${ctx}/static/style.css">
+</head>
+<body>
+<header class="site-header">
+    <div class="header-inner">
+        <a class="brand" href="${ctx}/catalog">Библиотека</a>
+
+        <nav class="main-nav">
+            <a href="${ctx}/catalog">Каталог</a>
+            <c:if test="${not empty sessionScope.currentUser}">
+                <a href="${ctx}/my/books">Мои книги</a>
+            </c:if>
+            <c:if test="${sessionScope.currentUser.role == 'LIBRARIAN'}">
+                <a href="${ctx}/admin/home">Панель библиотекаря</a>
+            </c:if>
+        </nav>
+
+        <nav class="user-nav">
+            <c:choose>
+                <c:when test="${not empty sessionScope.currentUser}">
+                    <span class="user-name"><c:out value="${sessionScope.currentUser.name}"/></span>
+                    <form method="post" action="${ctx}/logout" class="inline">
+                        <button type="submit" class="btn-light">Выйти</button>
+                    </form>
+                </c:when>
+                <c:otherwise>
+                    <a href="${ctx}/login">Войти</a>
+                    <a href="${ctx}/register">Регистрация</a>
+                </c:otherwise>
+            </c:choose>
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+    <c:if test="${not empty flashMessage}">
+        <div class="msg msg-ok"><c:out value="${flashMessage}"/></div>
+    </c:if>
+    <c:if test="${not empty flashError}">
+        <div class="msg msg-error"><c:out value="${flashError}"/></div>
+    </c:if>

@@ -1,52 +1,29 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<c:set var="pageTitle" value="Каталог книг"/>
+<%@ include file="/WEB-INF/views/fragments/header.jspf" %>
 <c:set var="isLibrarian" value="${sessionScope.currentUser.role == 'LIBRARIAN'}"/>
 <c:set var="isReader" value="${sessionScope.currentUser.role == 'READER'}"/>
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Каталог книг</title>
-</head>
-<body>
+
+<div class="toolbar">
     <h1>Каталог книг</h1>
-
-    <div>
-        <c:choose>
-            <c:when test="${not empty sessionScope.currentUser}">
-                Вы вошли как <b><c:out value="${sessionScope.currentUser.name}"/></b>
-                <form method="post" action="logout" style="display:inline">
-                    <button type="submit">Выйти</button>
-                </form>
-                <a href="my/books">Мои книги</a>
-                <c:if test="${isLibrarian}">
-                    <a href="admin/home">Панель библиотекаря</a>
-                </c:if>
-            </c:when>
-            <c:otherwise>
-                <a href="login">Войти</a> | <a href="register">Регистрация</a>
-            </c:otherwise>
-        </c:choose>
-    </div>
-
-    <c:if test="${not empty flashMessage}">
-        <p style="color: green"><c:out value="${flashMessage}"/></p>
+    <c:if test="${isLibrarian}">
+        <a class="btn" href="${ctx}/admin/books/new">Добавить книгу</a>
     </c:if>
-    <c:if test="${not empty flashError}">
-        <p style="color: red"><c:out value="${flashError}"/></p>
-    </c:if>
+</div>
 
-    <form method="get" action="catalog">
-        <input type="text" name="q" value="<c:out value='${q}'/>" placeholder="Название книги">
-        <button type="submit">Найти</button>
-    </form>
+<form method="get" action="${ctx}/catalog" class="search">
+    <input type="text" name="q" value="<c:out value='${q}'/>" placeholder="Название книги">
+    <button type="submit">Найти</button>
+</form>
 
-    <c:choose>
-        <c:when test="${empty books}">
-            <p>Ничего не найдено.</p>
-        </c:when>
-        <c:otherwise>
-            <table border="1" cellpadding="6">
+<c:choose>
+    <c:when test="${empty books}">
+        <p class="muted">Ничего не найдено.</p>
+    </c:when>
+    <c:otherwise>
+        <div class="table-wrap">
+            <table>
                 <tr>
                     <th>Название</th>
                     <th>Год</th>
@@ -62,61 +39,58 @@
                         <td>${book.availableCopies} из ${book.totalCopies}</td>
 
                         <c:if test="${isLibrarian}">
-                            <td>
-                                <a href="${pageContext.request.contextPath}/admin/books/edit?id=${book.id}">Изменить</a>
-                                <form method="post"
-                                      action="${pageContext.request.contextPath}/admin/books/delete"
-                                      style="display:inline"
+                            <td class="actions">
+                                <a href="${ctx}/admin/books/edit?id=${book.id}">Изменить</a>
+                                <form method="post" action="${ctx}/admin/books/delete" class="inline"
                                       onsubmit="return confirm('Удалить книгу?');">
                                     <input type="hidden" name="id" value="${book.id}">
-                                    <button type="submit">Удалить</button>
+                                    <button type="submit" class="btn-danger">Удалить</button>
                                 </form>
                             </td>
                         </c:if>
 
                         <c:if test="${isReader}">
-                            <td>
+                            <td class="actions">
                                 <c:choose>
                                     <c:when test="${book.availableCopies > 0}">
-                                        <form method="post"
-                                              action="${pageContext.request.contextPath}/my/orders"
-                                              style="display:inline">
+                                        <form method="post" action="${ctx}/my/orders" class="inline">
                                             <input type="hidden" name="bookId" value="${book.id}">
                                             <input type="hidden" name="q" value="<c:out value='${q}'/>">
                                             <input type="hidden" name="page" value="${page}">
                                             <button type="submit">Заказать</button>
                                         </form>
                                     </c:when>
-                                    <c:otherwise>Нет в наличии</c:otherwise>
+                                    <c:otherwise><span class="muted">Нет в наличии</span></c:otherwise>
                                 </c:choose>
                             </td>
                         </c:if>
                     </tr>
                 </c:forEach>
             </table>
+        </div>
 
-            <c:if test="${totalPages > 1}">
-                <p>
-                    <c:if test="${page > 1}">
-                        <c:url var="prevUrl" value="/catalog">
-                            <c:param name="q" value="${q}"/>
-                            <c:param name="page" value="${page - 1}"/>
-                        </c:url>
-                        <a href="<c:out value='${prevUrl}'/>">&larr; Назад</a>
-                    </c:if>
+        <c:if test="${totalPages > 1}">
+            <div class="pagination">
+                <c:if test="${page > 1}">
+                    <c:url var="prevUrl" value="/catalog">
+                        <c:param name="q" value="${q}"/>
+                        <c:param name="page" value="${page - 1}"/>
+                    </c:url>
+                    <a href="<c:out value='${prevUrl}'/>">&larr; Назад</a>
+                </c:if>
 
-                    Страница ${page} из ${totalPages}
+                <span>Страница ${page} из ${totalPages}</span>
 
-                    <c:if test="${page < totalPages}">
-                        <c:url var="nextUrl" value="/catalog">
-                            <c:param name="q" value="${q}"/>
-                            <c:param name="page" value="${page + 1}"/>
-                        </c:url>
-                        <a href="<c:out value='${nextUrl}'/>">Вперёд &rarr;</a>
-                    </c:if>
-                </p>
-            </c:if>
-        </c:otherwise>
-    </c:choose>
-</body>
-</html>
+                <c:if test="${page < totalPages}">
+                    <c:url var="nextUrl" value="/catalog">
+                        <c:param name="q" value="${q}"/>
+                        <c:param name="page" value="${page + 1}"/>
+                    </c:url>
+                    <a href="<c:out value='${nextUrl}'/>">Вперёд &rarr;</a>
+                </c:if>
+            </div>
+        </c:if>
+    </c:otherwise>
+</c:choose>
+
+<%@ include file="/WEB-INF/views/fragments/footer.jspf" %>
