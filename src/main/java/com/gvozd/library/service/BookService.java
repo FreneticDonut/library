@@ -84,6 +84,16 @@ public class BookService {
         return book;
     }
 
+        public void deleteBook(long id) {
+        getBook(id);
+
+        if (bookDao.hasLoans(id)) {
+            throw new ValidationException(
+                    "Нельзя удалить книгу: по ней есть выдачи. История выдач должна сохраниться");
+        }
+        bookDao.delete(id);
+    }
+
     private BookData validate(String title, String isbn, String publishYear, String totalCopies) {
         String trimmedTitle = (title == null) ? "" : title.trim();
         if (trimmedTitle.isEmpty() || trimmedTitle.length() > MAX_TITLE_LENGTH) {

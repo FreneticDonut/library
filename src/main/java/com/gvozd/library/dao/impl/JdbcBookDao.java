@@ -167,6 +167,32 @@ public class JdbcBookDao implements BookDao {
         }
     }
 
+    @Override
+    public boolean hasLoans(long bookId) {
+        String sql = "SELECT 1 FROM loans WHERE book_id = ? LIMIT 1";
+        try (Connection c = ds.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setLong(1, bookId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка проверки выдач книги", e);
+        }
+    }
+
+    @Override
+    public void delete(long id) {
+        String sql = "DELETE FROM books WHERE id = ?";
+        try (Connection c = ds.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setLong(1, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка удаления книги", e);
+        }
+    }
+
     private static String like(String query) {
         String s = (query == null) ? "" : query.trim().toLowerCase();
         return "%" + s + "%";

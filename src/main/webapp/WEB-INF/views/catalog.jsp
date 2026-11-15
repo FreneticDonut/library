@@ -25,6 +25,12 @@
             </c:otherwise>
         </c:choose>
     </p>
+        <c:if test="${not empty flashMessage}">
+        <p style="color: green"><c:out value="${flashMessage}"/></p>
+    </c:if>
+    <c:if test="${not empty flashError}">
+        <p style="color: red"><c:out value="${flashError}"/></p>
+    </c:if>
     <form method="get" action="catalog">
         <input type="text" name="q" value="<c:out value='${q}'/>" placeholder="Название книги">
         <button type="submit">Найти</button>
@@ -52,6 +58,13 @@
                         <c:if test="${sessionScope.currentUser.role == 'LIBRARIAN'}">
                             <td>
                                 <a href="${pageContext.request.contextPath}/admin/books/edit?id=${book.id}">Изменить</a>
+                                <form method="post"
+                                      action="${pageContext.request.contextPath}/admin/books/delete"
+                                      style="display:inline"
+                                      onsubmit="return confirm('Удалить книгу?');">
+                                    <input type="hidden" name="id" value="${book.id}">
+                                    <button type="submit">Удалить</button>
+                                </form>
                             </td>
                         </c:if>
                     </tr>
