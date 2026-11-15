@@ -40,12 +40,20 @@
                     <th>Название</th>
                     <th>Год</th>
                     <th>Свободно</th>
+                        <c:if test="${sessionScope.currentUser.role == 'LIBRARIAN'}">
+                        <th></th>
+                    </c:if>
                 </tr>
                 <c:forEach var="book" items="${books}">
                     <tr>
                         <td><c:out value="${book.title}"/></td>
                         <td><c:out value="${book.publishYear}"/></td>
                         <td>${book.availableCopies} из ${book.totalCopies}</td>
+                        <c:if test="${sessionScope.currentUser.role == 'LIBRARIAN'}">
+                            <td>
+                                <a href="${pageContext.request.contextPath}/admin/books/edit?id=${book.id}">Изменить</a>
+                            </td>
+                        </c:if>
                     </tr>
                 </c:forEach>
             </table>
