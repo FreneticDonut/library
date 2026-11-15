@@ -4,12 +4,12 @@ import com.gvozd.library.dao.impl.JdbcBookDao;
 import com.gvozd.library.service.BookService;
 import com.gvozd.library.service.CatalogPage;
 import com.gvozd.library.util.Db;
+import com.gvozd.library.util.Flash;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
@@ -24,8 +24,7 @@ public class CatalogServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        moveFlashToRequest(req, AdminBookDeleteServlet.FLASH_MESSAGE);
-        moveFlashToRequest(req, AdminBookDeleteServlet.FLASH_ERROR);
+        Flash.moveToRequest(req);
 
         CatalogPage result = bookService.getCatalogPage(
                 req.getParameter("q"),
@@ -36,18 +35,6 @@ public class CatalogServlet extends HttpServlet {
         req.setAttribute("page", result.page());
         req.setAttribute("totalPages", result.totalPages());
         req.getRequestDispatcher("/WEB-INF/views/catalog.jsp").forward(req, resp);
-    }
-
-    private static void moveFlashToRequest(HttpServletRequest req, String name) {
-        HttpSession session = req.getSession(false);
-        if (session == null) {
-            return;
-        }
-        Object value = session.getAttribute(name);
-        if (value != null) {
-            req.setAttribute(name, value);
-            session.removeAttribute(name);
-        }
     }
 
     private static int parsePage(String value) {
