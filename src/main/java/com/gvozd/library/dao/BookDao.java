@@ -20,4 +20,8 @@ public interface BookDao {
     Optional<Book> findByIsbn(String isbn);
 
     void update(Book book);
+
+    boolean hasLoans(long bookId);
+
+    void delete(long id);
 }
