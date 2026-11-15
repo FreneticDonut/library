@@ -1,0 +1,17 @@
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Мои книги</title>
+</head>
+<body>
+    <h1>Мои книги</h1>
+
+    <p>Здравствуйте, <b><c:out value="${sessionScope.currentUser.name}"/></b>!</p>
+    <p>Здесь будет список ваших выдач. Пока он пуст.</p>
+
+    <p><a href="${pageContext.request.contextPath}/catalog">В каталог</a></p>
+</body>
+</html>
