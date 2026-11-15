@@ -110,6 +110,20 @@ public class JdbcBookDao implements BookDao {
         }
     }
 
+    @Override
+    public boolean existsByIsbn(String isbn) {
+        String sql = "SELECT 1 FROM books WHERE isbn = ?";
+        try (Connection c = ds.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, isbn);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка проверки ISBN", e);
+        }
+    }
+
     private static String like(String query) {
         String s = (query == null) ? "" : query.trim().toLowerCase();
         return "%" + s + "%";
