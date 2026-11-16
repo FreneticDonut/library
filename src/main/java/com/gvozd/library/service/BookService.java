@@ -4,6 +4,7 @@ import com.gvozd.library.dao.BookDao;
 import com.gvozd.library.exception.NotFoundException;
 import com.gvozd.library.exception.ValidationException;
 import com.gvozd.library.model.Book;
+import com.gvozd.library.dao.AuthorDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,10 +25,12 @@ public class BookService {
                             List<String> authors) {}
 
     private final BookDao bookDao;
+    private final AuthorDao authorDao;
     private final int pageSize;
 
-    public BookService(BookDao bookDao, int pageSize) {
+    public BookService(BookDao bookDao, AuthorDao authorDao, int pageSize) {
         this.bookDao = bookDao;
+        this.authorDao = authorDao;
         this.pageSize = pageSize;
     }
 

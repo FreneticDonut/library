@@ -23,8 +23,10 @@ public class AdminBookEditServlet extends HttpServlet {
 
     private static final int PAGE_SIZE = 10;
 
-    private final BookService bookService =
-            new BookService(new JdbcBookDao(Db.getDataSource()), PAGE_SIZE);
+    private final BookService bookService = new BookService(
+            new JdbcBookDao(Db.getDataSource()),
+            new JdbcAuthorDao(Db.getDataSource()),
+            PAGE_SIZE);
 
     // временно читаем авторов напрямую; в части 5 перенесём это в сервис
     private final AuthorDao authorDao = new JdbcAuthorDao(Db.getDataSource());

@@ -1,6 +1,7 @@
 package com.gvozd.library.controller;
 
 import com.gvozd.library.dao.impl.JdbcBookDao;
+import com.gvozd.library.dao.impl.JdbcAuthorDao;
 import com.gvozd.library.service.BookService;
 import com.gvozd.library.service.CatalogPage;
 import com.gvozd.library.util.Db;
@@ -18,8 +19,10 @@ public class CatalogServlet extends HttpServlet {
 
     private static final int PAGE_SIZE = 3;
 
-    private final BookService bookService =
-            new BookService(new JdbcBookDao(Db.getDataSource()), PAGE_SIZE);
+    private final BookService bookService = new BookService(
+            new JdbcBookDao(Db.getDataSource()),
+            new JdbcAuthorDao(Db.getDataSource()),
+            PAGE_SIZE);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
