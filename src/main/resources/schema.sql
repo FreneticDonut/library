@@ -47,3 +47,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_loans_open_user_book
     WHERE status IN ('ORDERED', 'ACTIVE');
 
 CREATE INDEX IF NOT EXISTS idx_loans_book ON loans (book_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_authors_name ON authors (LOWER(name));
+CREATE INDEX IF NOT EXISTS idx_book_authors_author ON book_authors (author_id);
