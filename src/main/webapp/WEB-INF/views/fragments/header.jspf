@@ -15,7 +15,7 @@
 
         <nav class="main-nav">
             <a href="${ctx}/catalog">Каталог</a>
-            <c:if test="${not empty sessionScope.currentUser}">
+            <c:if test="${sessionScope.currentUser.role == 'READER'}">
                 <a href="${ctx}/my/books">Мои книги</a>
             </c:if>
             <c:if test="${sessionScope.currentUser.role == 'LIBRARIAN'}">
