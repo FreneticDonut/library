@@ -43,7 +43,7 @@ class BookServiceUpdateBookTest {
         when(bookDao.findById(1L)).thenReturn(Optional.of(existing));
         when(bookDao.findByIsbn("9785170000001")).thenReturn(Optional.empty());
 
-        service.updateBook(1L, "  New  ", "978-5-17-000000-1", "2020", "4");
+        service.updateBook(1L, "  New  ", "978-5-17-000000-1", "2020", "4", null);
 
         ArgumentCaptor<Book> captor = ArgumentCaptor.forClass(Book.class);
         verify(bookDao).update(captor.capture(), anyList());
@@ -61,7 +61,7 @@ class BookServiceUpdateBookTest {
         when(bookDao.findById(1L)).thenReturn(Optional.of(existing));
 
         assertThrows(ValidationException.class,
-                () -> service.updateBook(1L, "Old", "", "", "2"));
+                () -> service.updateBook(1L, "Old", "", "", "2", null));
 
         verify(bookDao, never()).update(any(), anyList());
     }
@@ -70,7 +70,7 @@ class BookServiceUpdateBookTest {
     void totalMayEqualBorrowedCopies() {
         when(bookDao.findById(1L)).thenReturn(Optional.of(existing));
 
-        service.updateBook(1L, "Old", "", "", "3");
+        service.updateBook(1L, "Old", "", "", "3", null);
 
         ArgumentCaptor<Book> captor = ArgumentCaptor.forClass(Book.class);
         verify(bookDao).update(captor.capture(), anyList());
@@ -84,7 +84,7 @@ class BookServiceUpdateBookTest {
         when(bookDao.findById(1L)).thenReturn(Optional.of(existing));
         when(bookDao.findByIsbn("9780134685991")).thenReturn(Optional.of(existing));
 
-        service.updateBook(1L, "Old", "9780134685991", "2018", "5");
+        service.updateBook(1L, "Old", "9780134685991", "2018", "5", null);
 
         verify(bookDao).update(any(Book.class), anyList());
     }
@@ -96,7 +96,7 @@ class BookServiceUpdateBookTest {
         when(bookDao.findByIsbn("9785170000001")).thenReturn(Optional.of(other));
 
         assertThrows(ValidationException.class,
-                () -> service.updateBook(1L, "Old", "9785170000001", "", "5"));
+                () -> service.updateBook(1L, "Old", "9785170000001", "", "5", null));
 
         verify(bookDao, never()).update(any(), anyList());
     }
@@ -106,7 +106,7 @@ class BookServiceUpdateBookTest {
         when(bookDao.findById(1L)).thenReturn(Optional.of(existing));
 
         assertThrows(ValidationException.class,
-                () -> service.updateBook(1L, "   ", "", "", "5"));
+                () -> service.updateBook(1L, "   ", "", "", "5", null));
 
         verify(bookDao, never()).update(any(), anyList());
     }
@@ -116,7 +116,7 @@ class BookServiceUpdateBookTest {
         when(bookDao.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class,
-                () -> service.updateBook(99L, "Title", "", "", "1"));
+                () -> service.updateBook(99L, "Title", "", "", "1", null));
 
         verify(bookDao, never()).update(any(), anyList());
     }

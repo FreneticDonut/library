@@ -62,7 +62,7 @@ class BookServiceAuthorsTest {
     void addBookWithoutAuthorsPassesEmptyList() {
         when(bookDao.save(any(Book.class), anyList())).thenAnswer(inv -> inv.getArgument(0));
 
-        service.addBook("Книга", "", "", "1");
+        service.addBook("Книга", "", "", "1", null);
 
         verify(bookDao).save(any(Book.class), namesCaptor.capture());
         assertTrue(namesCaptor.getValue().isEmpty());

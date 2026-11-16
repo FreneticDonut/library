@@ -49,10 +49,6 @@ public class BookService {
                 .orElseThrow(() -> new NotFoundException("Книга не найдена"));
     }
 
-    public Book addBook(String title, String isbn, String publishYear, String totalCopies) {
-        return addBook(title, isbn, publishYear, totalCopies, null);
-    }
-
     public Book addBook(String title, String isbn, String publishYear, String totalCopies,
                         String authors) {
         BookData data = validate(title, isbn, publishYear, totalCopies, authors);
@@ -66,11 +62,6 @@ public class BookService {
         LOG.info("Book added: id={}, copies={}, authors={}",
                 saved.getId(), saved.getTotalCopies(), data.authors().size());
         return saved;
-    }
-
-    public Book updateBook(long id, String title, String isbn, String publishYear,
-                           String totalCopies) {
-        return updateBook(id, title, isbn, publishYear, totalCopies, null);
     }
 
     public Book updateBook(long id, String title, String isbn, String publishYear,
