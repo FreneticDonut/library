@@ -1,5 +1,6 @@
 package com.gvozd.library.service;
 
+import com.gvozd.library.dao.AuthorDao;
 import com.gvozd.library.dao.BookDao;
 import com.gvozd.library.exception.NotFoundException;
 import com.gvozd.library.exception.ValidationException;
@@ -27,6 +28,9 @@ class BookServiceUpdateBookTest {
     @Mock
     private BookDao bookDao;
 
+    @Mock
+    private AuthorDao authorDao;
+
     private BookService service;
 
     // всего 5 экземпляров, свободно 2, значит на руках 3
@@ -34,7 +38,7 @@ class BookServiceUpdateBookTest {
 
     @BeforeEach
     void setUp() {
-        service = new BookService(bookDao, 10);
+        service = new BookService(bookDao, authorDao, 10);
         existing = new Book(1L, "Old", "9780134685991", 2018, 5, 2);
     }
 

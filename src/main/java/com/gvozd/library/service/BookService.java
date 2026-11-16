@@ -4,12 +4,16 @@ import com.gvozd.library.dao.BookDao;
 import com.gvozd.library.exception.NotFoundException;
 import com.gvozd.library.exception.ValidationException;
 import com.gvozd.library.model.Book;
+import com.gvozd.library.dao.AuthorDao;
+import com.gvozd.library.model.Author;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Year;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class BookService {
 
@@ -24,10 +28,12 @@ public class BookService {
                             List<String> authors) {}
 
     private final BookDao bookDao;
+    private final AuthorDao authorDao;
     private final int pageSize;
 
-    public BookService(BookDao bookDao, int pageSize) {
+    public BookService(BookDao bookDao, AuthorDao authorDao, int pageSize) {
         this.bookDao = bookDao;
+        this.authorDao = authorDao;
         this.pageSize = pageSize;
     }
 
@@ -41,7 +47,10 @@ public class BookService {
         int offset = (page - 1) * pageSize;
 
         List<Book> books = bookDao.findPage(q, pageSize, offset);
-        return new CatalogPage(books, q, page, totalPages);
+        Map<Long, List<Author>> authors = books.isEmpty()
+                ? Map.of()
+                : authorDao.findByBookIds(books.stream().map(Book::getId).toList());
+        return new CatalogPage(books, q, page, totalPages, authors);
     }
 
     public Book getBook(long id) {
@@ -94,6 +103,12 @@ public class BookService {
                 book.getId(), book.getTotalCopies(), book.getAvailableCopies(),
                 data.authors().size());
         return book;
+    }
+
+    public String getAuthorsLine(long bookId) {
+        return authorDao.findByBookId(bookId).stream()
+                .map(Author::getName)
+                .collect(Collectors.joining(", "));
     }
 
     public void deleteBook(long id) {

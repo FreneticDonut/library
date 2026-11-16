@@ -1,6 +1,7 @@
 package com.gvozd.library.controller;
 
 import com.gvozd.library.dao.impl.JdbcBookDao;
+import com.gvozd.library.dao.impl.JdbcAuthorDao;
 import com.gvozd.library.exception.NotFoundException;
 import com.gvozd.library.exception.ValidationException;
 import com.gvozd.library.service.BookService;
@@ -18,8 +19,10 @@ public class AdminBookDeleteServlet extends HttpServlet {
 
     private static final int PAGE_SIZE = 10;
 
-    private final BookService bookService =
-            new BookService(new JdbcBookDao(Db.getDataSource()), PAGE_SIZE);
+    private final BookService bookService = new BookService(
+            new JdbcBookDao(Db.getDataSource()),
+            new JdbcAuthorDao(Db.getDataSource()),
+            PAGE_SIZE);
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {

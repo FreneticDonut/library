@@ -1,5 +1,6 @@
 package com.gvozd.library.service;
 
+import com.gvozd.library.dao.AuthorDao;
 import com.gvozd.library.dao.BookDao;
 import com.gvozd.library.exception.ValidationException;
 import com.gvozd.library.model.Book;
@@ -32,6 +33,9 @@ class BookServiceAuthorsTest {
     @Mock
     private BookDao bookDao;
 
+    @Mock
+    private AuthorDao authorDao;
+
     @Captor
     private ArgumentCaptor<List<String>> namesCaptor;
 
@@ -39,7 +43,7 @@ class BookServiceAuthorsTest {
 
     @BeforeEach
     void setUp() {
-        service = new BookService(bookDao, 10);
+        service = new BookService(bookDao, authorDao, 10);
     }
 
     private static String elevenAuthors() {

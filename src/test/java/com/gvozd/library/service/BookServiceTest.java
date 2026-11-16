@@ -1,5 +1,6 @@
 package com.gvozd.library.service;
 
+import com.gvozd.library.dao.AuthorDao;
 import com.gvozd.library.dao.BookDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,11 +20,14 @@ class BookServiceTest {
     @Mock
     private BookDao bookDao;
 
+    @Mock
+    private AuthorDao authorDao;
+
     private BookService service;
 
     @BeforeEach
     void setUp() {
-        service = new BookService(bookDao, PAGE_SIZE);
+        service = new BookService(bookDao, authorDao, PAGE_SIZE);
     }
 
     @Test

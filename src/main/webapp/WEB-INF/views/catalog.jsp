@@ -26,6 +26,7 @@
             <table>
                 <tr>
                     <th>Название</th>
+                    <th>Авторы</th>
                     <th>Год</th>
                     <th>Свободно</th>
                     <c:if test="${isLibrarian || isReader}">
@@ -35,6 +36,18 @@
                 <c:forEach var="book" items="${books}">
                     <tr>
                         <td><c:out value="${book.title}"/></td>
+                        <td>
+                            <c:choose>
+                                <c:when test="${empty authors[book.id]}">
+                                    <span class="muted">—</span>
+                                </c:when>
+                                <c:otherwise>
+                                    <c:forEach var="author" items="${authors[book.id]}" varStatus="st">
+                                        <c:out value="${author.name}"/><c:if test="${not st.last}">, </c:if>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
+                        </td>
                         <td><c:out value="${book.publishYear}"/></td>
                         <td>${book.availableCopies} из ${book.totalCopies}</td>
 
