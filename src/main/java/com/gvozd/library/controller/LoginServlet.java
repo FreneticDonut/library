@@ -12,12 +12,15 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
+    private static final Logger LOG = LoggerFactory.getLogger(LoginServlet.class);
     public static final String SESSION_USER = "currentUser";
 
     private final AuthService authService =
@@ -48,6 +51,7 @@ public class LoginServlet extends HttpServlet {
 
             resp.sendRedirect(req.getContextPath() + "/catalog");
         } catch (AuthException e) {
+            LOG.warn("Failed login attempt from {}", req.getRemoteAddr());
             req.setAttribute("error", e.getMessage());
             req.setAttribute("email", email);
             req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);

@@ -2,10 +2,15 @@ package com.gvozd.library.util;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 
 public final class Db {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Db.class);
+
     private static final HikariDataSource DATA_SOURCE = create();
 
     private Db() {}
@@ -16,7 +21,10 @@ public final class Db {
         cfg.setUsername(require("DB_USER"));
         cfg.setPassword(require("DB_PASSWORD"));
         cfg.setMaximumPoolSize(5);
-        return new HikariDataSource(cfg);
+
+        HikariDataSource dataSource = new HikariDataSource(cfg);
+        LOG.info("Database connection pool created, max size {}", cfg.getMaximumPoolSize());
+        return dataSource;
     }
 
     private static String require(String name) {
