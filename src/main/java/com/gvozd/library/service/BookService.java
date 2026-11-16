@@ -14,12 +14,14 @@ import java.util.regex.Pattern;
 public class BookService {
 
     private static final Logger LOG = LoggerFactory.getLogger(BookService.class);
+
     private static final int MAX_TITLE_LENGTH = 300;
     private static final int MIN_YEAR = 1000;
     private static final int MAX_COPIES = 1000;
     private static final Pattern ISBN_PATTERN = Pattern.compile("^(\\d{13}|\\d{9}[\\dX])$");
 
-    private record BookData(String title, String isbn, Integer year, int copies) {}
+    private record BookData(String title, String isbn, Integer year, int copies,
+                            List<String> authors) {}
 
     private final BookDao bookDao;
     private final int pageSize;
@@ -48,22 +50,33 @@ public class BookService {
     }
 
     public Book addBook(String title, String isbn, String publishYear, String totalCopies) {
-        BookData data = validate(title, isbn, publishYear, totalCopies);
+        return addBook(title, isbn, publishYear, totalCopies, null);
+    }
+
+    public Book addBook(String title, String isbn, String publishYear, String totalCopies,
+                        String authors) {
+        BookData data = validate(title, isbn, publishYear, totalCopies, authors);
 
         if (data.isbn() != null && bookDao.existsByIsbn(data.isbn())) {
             throw new ValidationException("Книга с таким ISBN уже есть в каталоге");
         }
 
         Book saved = bookDao.save(new Book(null, data.title(), data.isbn(), data.year(),
-            data.copies(), data.copies()));
-        LOG.info("Book added: id={}, copies={}", saved.getId(), saved.getTotalCopies());
+                data.copies(), data.copies()), data.authors());
+        LOG.info("Book added: id={}, copies={}, authors={}",
+                saved.getId(), saved.getTotalCopies(), data.authors().size());
         return saved;
     }
 
     public Book updateBook(long id, String title, String isbn, String publishYear,
                            String totalCopies) {
+        return updateBook(id, title, isbn, publishYear, totalCopies, null);
+    }
+
+    public Book updateBook(long id, String title, String isbn, String publishYear,
+                           String totalCopies, String authors) {
         Book book = getBook(id);
-        BookData data = validate(title, isbn, publishYear, totalCopies);
+        BookData data = validate(title, isbn, publishYear, totalCopies, authors);
 
         int borrowed = book.getTotalCopies() - book.getAvailableCopies();
         if (data.copies() < borrowed) {
@@ -85,13 +98,14 @@ public class BookService {
         book.setTotalCopies(data.copies());
         book.setAvailableCopies(data.copies() - borrowed);
 
-        bookDao.update(book);
-        LOG.info("Book updated: id={}, total={}, available={}",
-                book.getId(), book.getTotalCopies(), book.getAvailableCopies());
+        bookDao.update(book, data.authors());
+        LOG.info("Book updated: id={}, total={}, available={}, authors={}",
+                book.getId(), book.getTotalCopies(), book.getAvailableCopies(),
+                data.authors().size());
         return book;
     }
 
-        public void deleteBook(long id) {
+    public void deleteBook(long id) {
         getBook(id);
 
         if (bookDao.hasLoans(id)) {
@@ -102,7 +116,8 @@ public class BookService {
         LOG.info("Book deleted: id={}", id);
     }
 
-    private BookData validate(String title, String isbn, String publishYear, String totalCopies) {
+    private BookData validate(String title, String isbn, String publishYear,
+                              String totalCopies, String authors) {
         String trimmedTitle = (title == null) ? "" : title.trim();
         if (trimmedTitle.isEmpty() || trimmedTitle.length() > MAX_TITLE_LENGTH) {
             throw new ValidationException(
@@ -116,8 +131,9 @@ public class BookService {
 
         Integer year = parseYear(publishYear);
         int copies = parseCopies(totalCopies);
+        List<String> authorNames = AuthorNames.parse(authors);
 
-        return new BookData(trimmedTitle, normalizedIsbn, year, copies);
+        return new BookData(trimmedTitle, normalizedIsbn, year, copies, authorNames);
     }
 
     private static String normalizeIsbn(String isbn) {

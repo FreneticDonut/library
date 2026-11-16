@@ -16,6 +16,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,7 +46,7 @@ class BookServiceUpdateBookTest {
         service.updateBook(1L, "  New  ", "978-5-17-000000-1", "2020", "4");
 
         ArgumentCaptor<Book> captor = ArgumentCaptor.forClass(Book.class);
-        verify(bookDao).update(captor.capture());
+        verify(bookDao).update(captor.capture(), anyList());
         Book saved = captor.getValue();
 
         assertEquals("New", saved.getTitle());
@@ -62,7 +63,7 @@ class BookServiceUpdateBookTest {
         assertThrows(ValidationException.class,
                 () -> service.updateBook(1L, "Old", "", "", "2"));
 
-        verify(bookDao, never()).update(any());
+        verify(bookDao, never()).update(any(), anyList());
     }
 
     @Test
@@ -72,7 +73,7 @@ class BookServiceUpdateBookTest {
         service.updateBook(1L, "Old", "", "", "3");
 
         ArgumentCaptor<Book> captor = ArgumentCaptor.forClass(Book.class);
-        verify(bookDao).update(captor.capture());
+        verify(bookDao).update(captor.capture(), anyList());
 
         assertEquals(3, captor.getValue().getTotalCopies());
         assertEquals(0, captor.getValue().getAvailableCopies());
@@ -85,7 +86,7 @@ class BookServiceUpdateBookTest {
 
         service.updateBook(1L, "Old", "9780134685991", "2018", "5");
 
-        verify(bookDao).update(any(Book.class));
+        verify(bookDao).update(any(Book.class), anyList());
     }
 
     @Test
@@ -97,7 +98,7 @@ class BookServiceUpdateBookTest {
         assertThrows(ValidationException.class,
                 () -> service.updateBook(1L, "Old", "9785170000001", "", "5"));
 
-        verify(bookDao, never()).update(any());
+        verify(bookDao, never()).update(any(), anyList());
     }
 
     @Test
@@ -107,7 +108,7 @@ class BookServiceUpdateBookTest {
         assertThrows(ValidationException.class,
                 () -> service.updateBook(1L, "   ", "", "", "5"));
 
-        verify(bookDao, never()).update(any());
+        verify(bookDao, never()).update(any(), anyList());
     }
 
     @Test
@@ -117,7 +118,7 @@ class BookServiceUpdateBookTest {
         assertThrows(NotFoundException.class,
                 () -> service.updateBook(99L, "Title", "", "", "1"));
 
-        verify(bookDao, never()).update(any());
+        verify(bookDao, never()).update(any(), anyList());
     }
 
     @Test
