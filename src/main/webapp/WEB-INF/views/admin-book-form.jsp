@@ -33,12 +33,10 @@
         <label>Количество экземпляров
             <input type="number" name="totalCopies" required min="1" value="<c:out value='${totalCopies}'/>">
         </label>
-        <c:if test="${not editMode}">
-            <label>Авторы (через запятую или точку с запятой)
-                <input type="text" name="authors" value="<c:out value='${authors}'/>">
-            </label>
-            <p class="muted">Например: Лев Толстой, Фёдор Достоевский. Каждое имя пишите целиком, без запятой внутри.</p>
-        </c:if>
+        <label>Авторы (через запятую или точку с запятой)
+            <input type="text" name="authors" value="<c:out value='${authors}'/>">
+        </label>
+        <p class="muted">Например: Лев Толстой, Фёдор Достоевский. Каждое имя пишите целиком, без запятой внутри.</p>
         <button type="submit">${editMode ? 'Сохранить' : 'Добавить'}</button>
     </form>
 </div>
