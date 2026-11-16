@@ -34,6 +34,7 @@ public class CatalogServlet extends HttpServlet {
                 parsePage(req.getParameter("page")));
 
         req.setAttribute("books", result.books());
+        req.setAttribute("authors", result.authors());
         req.setAttribute("q", result.query());
         req.setAttribute("page", result.page());
         req.setAttribute("totalPages", result.totalPages());
