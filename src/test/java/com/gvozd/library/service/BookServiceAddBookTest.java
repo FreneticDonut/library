@@ -39,7 +39,7 @@ class BookServiceAddBookTest {
         when(bookDao.existsByIsbn("9780134685991")).thenReturn(false);
         when(bookDao.save(any(Book.class), anyList())).thenAnswer(inv -> inv.getArgument(0));
 
-        service.addBook("  Effective Java ", "978-0-13-468599-1", "2018", "3");
+        service.addBook("  Effective Java ", "978-0-13-468599-1", "2018", "3", null);
 
         ArgumentCaptor<Book> captor = ArgumentCaptor.forClass(Book.class);
         verify(bookDao).save(captor.capture(), anyList());
@@ -56,7 +56,7 @@ class BookServiceAddBookTest {
     void blankIsbnAndYearAreStoredAsNull() {
         when(bookDao.save(any(Book.class), anyList())).thenAnswer(inv -> inv.getArgument(0));
 
-        service.addBook("Книга", "   ", "", "1");
+        service.addBook("Книга", "   ", "", "1", null);
 
         ArgumentCaptor<Book> captor = ArgumentCaptor.forClass(Book.class);
         verify(bookDao).save(captor.capture(), anyList());
@@ -71,14 +71,14 @@ class BookServiceAddBookTest {
         when(bookDao.existsByIsbn("080442957X")).thenReturn(false);
         when(bookDao.save(any(Book.class), anyList())).thenAnswer(inv -> inv.getArgument(0));
 
-        service.addBook("Книга", "0-8044-2957-x", "", "1");
+        service.addBook("Книга", "0-8044-2957-x", "", "1", null);
 
         verify(bookDao).save(any(Book.class), anyList());
     }
 
     @Test
     void emptyTitleIsRejected() {
-        assertThrows(ValidationException.class, () -> service.addBook("   ", "", "", "1"));
+        assertThrows(ValidationException.class, () -> service.addBook("   ", "", "", "1", null));
 
         verify(bookDao, never()).save(any(), anyList());
     }
@@ -87,14 +87,14 @@ class BookServiceAddBookTest {
     void tooLongTitleIsRejected() {
         String longTitle = "a".repeat(301);
 
-        assertThrows(ValidationException.class, () -> service.addBook(longTitle, "", "", "1"));
+        assertThrows(ValidationException.class, () -> service.addBook(longTitle, "", "", "1", null));
 
         verify(bookDao, never()).save(any(), anyList());
     }
 
     @Test
     void invalidIsbnIsRejected() {
-        assertThrows(ValidationException.class, () -> service.addBook("Книга", "123", "", "1"));
+        assertThrows(ValidationException.class, () -> service.addBook("Книга", "123", "", "1", null));
 
         verify(bookDao, never()).save(any(), anyList());
     }
@@ -104,7 +104,7 @@ class BookServiceAddBookTest {
         when(bookDao.existsByIsbn("9780134685991")).thenReturn(true);
 
         assertThrows(ValidationException.class,
-                () -> service.addBook("Книга", "9780134685991", "", "1"));
+                () -> service.addBook("Книга", "9780134685991", "", "1", null));
 
         verify(bookDao, never()).save(any(), anyList());
     }
@@ -112,7 +112,7 @@ class BookServiceAddBookTest {
     @ParameterizedTest
     @ValueSource(strings = {"abc", "999", "3000"})
     void invalidYearIsRejected(String year) {
-        assertThrows(ValidationException.class, () -> service.addBook("Книга", "", year, "1"));
+        assertThrows(ValidationException.class, () -> service.addBook("Книга", "", year, "1", null));
 
         verify(bookDao, never()).save(any(), anyList());
     }
@@ -120,7 +120,7 @@ class BookServiceAddBookTest {
     @ParameterizedTest
     @ValueSource(strings = {"", "abc", "0", "-1", "1001"})
     void invalidCopiesAreRejected(String copies) {
-        assertThrows(ValidationException.class, () -> service.addBook("Книга", "", "", copies));
+        assertThrows(ValidationException.class, () -> service.addBook("Книга", "", "", copies, null));
 
         verify(bookDao, never()).save(any(), anyList());
     }

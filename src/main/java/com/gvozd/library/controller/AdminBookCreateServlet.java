@@ -33,9 +33,10 @@ public class AdminBookCreateServlet extends HttpServlet {
         String isbn = req.getParameter("isbn");
         String publishYear = req.getParameter("publishYear");
         String totalCopies = req.getParameter("totalCopies");
+        String authors = req.getParameter("authors");
 
         try {
-            bookService.addBook(title, isbn, publishYear, totalCopies);
+            bookService.addBook(title, isbn, publishYear, totalCopies, authors);
             resp.sendRedirect(req.getContextPath() + "/admin/books/new?added=1");
         } catch (ValidationException e) {
             req.setAttribute("error", e.getMessage());
@@ -43,6 +44,7 @@ public class AdminBookCreateServlet extends HttpServlet {
             req.setAttribute("isbn", isbn);
             req.setAttribute("publishYear", publishYear);
             req.setAttribute("totalCopies", totalCopies);
+            req.setAttribute("authors", authors);
             req.getRequestDispatcher("/WEB-INF/views/admin-book-form.jsp").forward(req, resp);
         }
     }
