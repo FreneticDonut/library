@@ -193,6 +193,87 @@ public class JdbcBookDao implements BookDao {
         }
     }
 
+    @Override
+    public Book save(Book book, List<String> authorNames) {
+        try (Connection c = ds.getConnection()) {
+            c.setAutoCommit(false);
+            try {
+                insertRow(c, book);
+                JdbcAuthorDao.replaceBookAuthors(c, book.getId(), authorNames);
+                c.commit();
+                return book;
+            } catch (SQLException | RuntimeException e) {
+                book.setId(null);
+                c.rollback();
+                throw e;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка сохранения книги", e);
+        }
+    }
+
+    @Override
+    public void update(Book book, List<String> authorNames) {
+        try (Connection c = ds.getConnection()) {
+            c.setAutoCommit(false);
+            try {
+                updateRow(c, book);
+                JdbcAuthorDao.replaceBookAuthors(c, book.getId(), authorNames);
+                c.commit();
+            } catch (SQLException | RuntimeException e) {
+                c.rollback();
+                throw e;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка обновления книги", e);
+        }
+    }
+
+    private static void insertRow(Connection c, Book book) throws SQLException {
+        String sql = """
+                INSERT INTO books (title, isbn, publish_year, total_copies, available_copies)
+                VALUES (?, ?, ?, ?, ?)
+                """;
+        try (PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, book.getTitle());
+            ps.setString(2, book.getIsbn());
+            if (book.getPublishYear() == null) {
+                ps.setNull(3, Types.INTEGER);
+            } else {
+                ps.setInt(3, book.getPublishYear());
+            }
+            ps.setInt(4, book.getTotalCopies());
+            ps.setInt(5, book.getAvailableCopies());
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    book.setId(keys.getLong("id"));
+                }
+            }
+        }
+    }
+
+    private static void updateRow(Connection c, Book book) throws SQLException {
+        String sql = """
+                UPDATE books
+                SET title = ?, isbn = ?, publish_year = ?, total_copies = ?, available_copies = ?
+                WHERE id = ?
+                """;
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, book.getTitle());
+            ps.setString(2, book.getIsbn());
+            if (book.getPublishYear() == null) {
+                ps.setNull(3, Types.INTEGER);
+            } else {
+                ps.setInt(3, book.getPublishYear());
+            }
+            ps.setInt(4, book.getTotalCopies());
+            ps.setInt(5, book.getAvailableCopies());
+            ps.setLong(6, book.getId());
+            ps.executeUpdate();
+        }
+    }
+
     private static String like(String query) {
         String s = (query == null) ? "" : query.trim().toLowerCase();
         return "%" + s + "%";
