@@ -6,13 +6,15 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 @WebServlet("/error")
 public class ErrorServlet extends HttpServlet {
 
-    private static final System.Logger LOG = System.getLogger(ErrorServlet.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ErrorServlet.class);
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp)
@@ -26,7 +28,7 @@ public class ErrorServlet extends HttpServlet {
         Throwable cause = (Throwable) req.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
         if (cause != null) {
             Object uri = req.getAttribute(RequestDispatcher.ERROR_REQUEST_URI);
-            LOG.log(System.Logger.Level.ERROR, "Необработанная ошибка при запросе " + uri, cause);
+            LOG.error("Unhandled error for request {}", uri, cause);        
         }
 
         resp.setStatus(status);

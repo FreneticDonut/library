@@ -6,11 +6,14 @@ import com.gvozd.library.exception.ValidationException;
 import com.gvozd.library.model.Role;
 import com.gvozd.library.model.User;
 import com.gvozd.library.util.PasswordHasher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Pattern;
 
 public class AuthService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AuthService.class);
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
     private static final int MIN_PASSWORD_LENGTH = 8;
     private static final int MAX_EMAIL_LENGTH = 255;
@@ -42,8 +45,10 @@ public class AuthService {
         }
 
         User user = new User(null, normalizedEmail, PasswordHasher.hash(password),
-                trimmedName, Role.READER);
-        return userDao.save(user);
+            trimmedName, Role.READER);
+        User saved = userDao.save(user);
+        LOG.info("User registered: id={}, role={}", saved.getId(), saved.getRole());
+        return saved;
     }
 
     public User login(String email, String password) {
@@ -55,6 +60,7 @@ public class AuthService {
         if (!PasswordHasher.verify(password, user.getPasswordHash())) {
             throw new AuthException("Неверный email или пароль");
         }
+        LOG.info("User logged in: id={}", user.getId());
         return user;
     }
 

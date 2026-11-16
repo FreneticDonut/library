@@ -9,12 +9,16 @@ import com.gvozd.library.exception.ValidationException;
 import com.gvozd.library.model.AdminLoanView;
 import com.gvozd.library.model.LoanStatus;
 import com.gvozd.library.model.LoanView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class LoanService {
 
     public static final int LOAN_DAYS = 14;
+
+    private static final Logger LOG = LoggerFactory.getLogger(LoanService.class);
 
     private final LoanDao loanDao;
     private final int maxOpenLoans;
@@ -28,7 +32,7 @@ public class LoanService {
         OrderResult result = loanDao.placeOrder(userId, bookId, maxOpenLoans);
 
         switch (result) {
-            case OK -> { }
+            case OK -> LOG.info("Order placed: userId={}, bookId={}", userId, bookId);
             case BOOK_NOT_FOUND -> throw new NotFoundException("Книга не найдена");
             case NO_COPIES -> throw new ValidationException("Свободных экземпляров этой книги нет");
             case ALREADY_ORDERED -> throw new ValidationException("Вы уже заказали эту книгу");
@@ -41,7 +45,7 @@ public class LoanService {
         CancelResult result = loanDao.cancelOrder(userId, loanId);
 
         switch (result) {
-            case OK -> { }
+            case OK -> LOG.info("Order cancelled: userId={}, loanId={}", userId, loanId);
             case NOT_FOUND -> throw new NotFoundException("Заказ не найден");
             case NOT_CANCELLABLE -> throw new ValidationException(
                     "Отменить можно только заказ, который ещё не выдан");
@@ -52,7 +56,7 @@ public class LoanService {
         LoanActionResult result = loanDao.issue(loanId, LOAN_DAYS);
 
         switch (result) {
-            case OK -> { }
+            case OK -> LOG.info("Loan issued: loanId={}, days={}", loanId, LOAN_DAYS);
             case NOT_FOUND -> throw new NotFoundException("Заказ не найден. Возможно, читатель его отменил");
             case WRONG_STATUS -> throw new ValidationException("Выдать можно только заказанную книгу");
         }
@@ -62,7 +66,7 @@ public class LoanService {
         LoanActionResult result = loanDao.returnBook(loanId);
 
         switch (result) {
-            case OK -> { }
+            case OK -> LOG.info("Loan returned: loanId={}", loanId);
             case NOT_FOUND -> throw new NotFoundException("Выдача не найдена");
             case WRONG_STATUS -> throw new ValidationException("Принять можно только книгу, которая на руках");
         }

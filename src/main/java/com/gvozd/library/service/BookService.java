@@ -4,6 +4,8 @@ import com.gvozd.library.dao.BookDao;
 import com.gvozd.library.exception.NotFoundException;
 import com.gvozd.library.exception.ValidationException;
 import com.gvozd.library.model.Book;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Year;
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.regex.Pattern;
 
 public class BookService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(BookService.class);
     private static final int MAX_TITLE_LENGTH = 300;
     private static final int MIN_YEAR = 1000;
     private static final int MAX_COPIES = 1000;
@@ -51,8 +54,10 @@ public class BookService {
             throw new ValidationException("Книга с таким ISBN уже есть в каталоге");
         }
 
-        return bookDao.save(new Book(null, data.title(), data.isbn(), data.year(),
-                data.copies(), data.copies()));
+        Book saved = bookDao.save(new Book(null, data.title(), data.isbn(), data.year(),
+            data.copies(), data.copies()));
+        LOG.info("Book added: id={}, copies={}", saved.getId(), saved.getTotalCopies());
+        return saved;
     }
 
     public Book updateBook(long id, String title, String isbn, String publishYear,
@@ -81,6 +86,8 @@ public class BookService {
         book.setAvailableCopies(data.copies() - borrowed);
 
         bookDao.update(book);
+        LOG.info("Book updated: id={}, total={}, available={}",
+                book.getId(), book.getTotalCopies(), book.getAvailableCopies());
         return book;
     }
 
@@ -92,6 +99,7 @@ public class BookService {
                     "Нельзя удалить книгу: по ней есть выдачи. История выдач должна сохраниться");
         }
         bookDao.delete(id);
+        LOG.info("Book deleted: id={}", id);
     }
 
     private BookData validate(String title, String isbn, String publishYear, String totalCopies) {
