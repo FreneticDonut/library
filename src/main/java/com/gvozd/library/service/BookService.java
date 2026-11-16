@@ -13,6 +13,7 @@ import java.time.Year;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class BookService {
 
@@ -102,6 +103,12 @@ public class BookService {
                 book.getId(), book.getTotalCopies(), book.getAvailableCopies(),
                 data.authors().size());
         return book;
+    }
+
+    public String getAuthorsLine(long bookId) {
+        return authorDao.findByBookId(bookId).stream()
+                .map(Author::getName)
+                .collect(Collectors.joining(", "));
     }
 
     public void deleteBook(long id) {
