@@ -24,4 +24,8 @@ public interface BookDao {
     boolean hasLoans(long bookId);
 
     void delete(long id);
+
+    Book save(Book book, List<String> authorNames);
+
+    void update(Book book, List<String> authorNames);
 }
