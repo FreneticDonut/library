@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,12 +37,12 @@ class BookServiceAddBookTest {
     @Test
     void savesBookWithNormalizedData() {
         when(bookDao.existsByIsbn("9780134685991")).thenReturn(false);
-        when(bookDao.save(any(Book.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(bookDao.save(any(Book.class), anyList())).thenAnswer(inv -> inv.getArgument(0));
 
         service.addBook("  Effective Java ", "978-0-13-468599-1", "2018", "3");
 
         ArgumentCaptor<Book> captor = ArgumentCaptor.forClass(Book.class);
-        verify(bookDao).save(captor.capture());
+        verify(bookDao).save(captor.capture(), anyList());
         Book saved = captor.getValue();
 
         assertEquals("Effective Java", saved.getTitle());
@@ -53,12 +54,12 @@ class BookServiceAddBookTest {
 
     @Test
     void blankIsbnAndYearAreStoredAsNull() {
-        when(bookDao.save(any(Book.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(bookDao.save(any(Book.class), anyList())).thenAnswer(inv -> inv.getArgument(0));
 
         service.addBook("Книга", "   ", "", "1");
 
         ArgumentCaptor<Book> captor = ArgumentCaptor.forClass(Book.class);
-        verify(bookDao).save(captor.capture());
+        verify(bookDao).save(captor.capture(), anyList());
 
         assertNull(captor.getValue().getIsbn());
         assertNull(captor.getValue().getPublishYear());
@@ -68,18 +69,18 @@ class BookServiceAddBookTest {
     @Test
     void isbn10WithXIsAccepted() {
         when(bookDao.existsByIsbn("080442957X")).thenReturn(false);
-        when(bookDao.save(any(Book.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(bookDao.save(any(Book.class), anyList())).thenAnswer(inv -> inv.getArgument(0));
 
         service.addBook("Книга", "0-8044-2957-x", "", "1");
 
-        verify(bookDao).save(any(Book.class));
+        verify(bookDao).save(any(Book.class), anyList());
     }
 
     @Test
     void emptyTitleIsRejected() {
         assertThrows(ValidationException.class, () -> service.addBook("   ", "", "", "1"));
 
-        verify(bookDao, never()).save(any());
+        verify(bookDao, never()).save(any(), anyList());
     }
 
     @Test
@@ -88,14 +89,14 @@ class BookServiceAddBookTest {
 
         assertThrows(ValidationException.class, () -> service.addBook(longTitle, "", "", "1"));
 
-        verify(bookDao, never()).save(any());
+        verify(bookDao, never()).save(any(), anyList());
     }
 
     @Test
     void invalidIsbnIsRejected() {
         assertThrows(ValidationException.class, () -> service.addBook("Книга", "123", "", "1"));
 
-        verify(bookDao, never()).save(any());
+        verify(bookDao, never()).save(any(), anyList());
     }
 
     @Test
@@ -105,7 +106,7 @@ class BookServiceAddBookTest {
         assertThrows(ValidationException.class,
                 () -> service.addBook("Книга", "9780134685991", "", "1"));
 
-        verify(bookDao, never()).save(any());
+        verify(bookDao, never()).save(any(), anyList());
     }
 
     @ParameterizedTest
@@ -113,7 +114,7 @@ class BookServiceAddBookTest {
     void invalidYearIsRejected(String year) {
         assertThrows(ValidationException.class, () -> service.addBook("Книга", "", year, "1"));
 
-        verify(bookDao, never()).save(any());
+        verify(bookDao, never()).save(any(), anyList());
     }
 
     @ParameterizedTest
@@ -121,6 +122,6 @@ class BookServiceAddBookTest {
     void invalidCopiesAreRejected(String copies) {
         assertThrows(ValidationException.class, () -> service.addBook("Книга", "", "", copies));
 
-        verify(bookDao, never()).save(any());
+        verify(bookDao, never()).save(any(), anyList());
     }
 }
