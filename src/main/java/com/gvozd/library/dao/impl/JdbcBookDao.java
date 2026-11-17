@@ -18,24 +18,27 @@ public class JdbcBookDao implements BookDao {
 
     private final DataSource ds;
 
+        private static final String MATCH =
+            "(LOWER(b.title) LIKE ? OR EXISTS (SELECT 1 FROM book_authors ba "
+            + "JOIN authors a ON a.id = ba.author_id "
+            + "WHERE ba.book_id = b.id AND LOWER(a.name) LIKE ?))";
+
     public JdbcBookDao(DataSource ds) {
         this.ds = ds;
     }
 
-    @Override
-    public List<Book> findPage(String titleQuery, int limit, int offset) {
-        String sql = """
-                SELECT id, title, isbn, publish_year, total_copies, available_copies
-                FROM books
-                WHERE LOWER(title) LIKE ?
-                ORDER BY title
-                LIMIT ? OFFSET ?
-                """;
+       @Override
+    public List<Book> findPage(String query, int limit, int offset) {
+        String sql = "SELECT b.id, b.title, b.isbn, b.publish_year, b.total_copies, "
+                + "b.available_copies FROM books b WHERE " + MATCH
+                + " ORDER BY b.title LIMIT ? OFFSET ?";
         try (Connection c = ds.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, like(titleQuery));
-            ps.setInt(2, limit);
-            ps.setInt(3, offset);
+            String pattern = like(query);
+            ps.setString(1, pattern);
+            ps.setString(2, pattern);
+            ps.setInt(3, limit);
+            ps.setInt(4, offset);
             try (ResultSet rs = ps.executeQuery()) {
                 List<Book> result = new ArrayList<>();
                 while (rs.next()) {
@@ -49,11 +52,13 @@ public class JdbcBookDao implements BookDao {
     }
 
     @Override
-    public long count(String titleQuery) {
-        String sql = "SELECT COUNT(*) FROM books WHERE LOWER(title) LIKE ?";
+    public long count(String query) {
+        String sql = "SELECT COUNT(*) FROM books b WHERE " + MATCH;
         try (Connection c = ds.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, like(titleQuery));
+            String pattern = like(query);
+            ps.setString(1, pattern);
+            ps.setString(2, pattern);
             try (ResultSet rs = ps.executeQuery()) {
                 rs.next();
                 return rs.getLong(1);
