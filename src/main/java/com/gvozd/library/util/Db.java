@@ -18,6 +18,7 @@ public final class Db {
     private static HikariDataSource create() {
         HikariConfig cfg = new HikariConfig();
         cfg.setJdbcUrl(require("DB_URL"));
+        cfg.setDriverClassName("org.postgresql.Driver");
         cfg.setUsername(require("DB_USER"));
         cfg.setPassword(require("DB_PASSWORD"));
         cfg.setMaximumPoolSize(5);
