@@ -21,6 +21,10 @@ public final class Db {
         cfg.setUsername(require("DB_USER"));
         cfg.setPassword(require("DB_PASSWORD"));
         cfg.setMaximumPoolSize(5);
+        // не падаем при старте, если база ещё просыпается
+        cfg.setInitializationFailTimeout(-1);
+        cfg.setConnectionTimeout(30_000);
+        cfg.addDataSourceProperty("connectTimeout", "30");
 
         HikariDataSource dataSource = new HikariDataSource(cfg);
         LOG.info("Database connection pool created, max size {}", cfg.getMaximumPoolSize());
