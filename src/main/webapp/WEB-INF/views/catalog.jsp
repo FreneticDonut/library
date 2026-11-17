@@ -13,7 +13,7 @@
 </div>
 
 <form method="get" action="${ctx}/catalog" class="search">
-    <input type="text" name="q" value="<c:out value='${q}'/>" placeholder="Название книги">
+    <input type="text" name="q" value="<c:out value='${q}'/>" placeholder="Название книги или автор">
     <button type="submit">Найти</button>
 </form>
 
