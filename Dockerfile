@@ -9,4 +9,5 @@ RUN mvn -B -DskipTests package
 FROM tomcat:10.1-jre21-temurin
 RUN rm -rf /usr/local/tomcat/webapps/*
 COPY --from=build /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
+ENV CATALINA_OPTS="-XX:MaxRAMPercentage=60 -XX:+UseSerialGC -XX:TieredStopAtLevel=1"
 EXPOSE 8080
