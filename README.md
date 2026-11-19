@@ -47,3 +47,90 @@
 | Логирование | SLF4J, Logback |
 | Тесты | JUnit 5, Mockito |
 | Развёртывание | Docker, Tomcat 10.1, Render |
+
+
+## Структура проекта
+
+```
+src/main
+├── java/com/gvozd/library
+│   ├── controller   сервлеты: принимают запрос, вызывают сервис, выбирают страницу
+│   ├── service      бизнес-логика и проверка данных
+│   ├── dao          интерфейсы доступа к данным
+│   │   └── impl     реализации на JDBC
+│   ├── model        сущности и объекты для вывода на страницы
+│   ├── filter       кодировка, проверка входа, проверка роли
+│   ├── exception    ожидаемые ошибки: ввод, вход, «не найдено»
+│   └── util         пул соединений, хеширование паролей, flash-сообщения
+├── resources        schema.sql, data.sql, logback.xml
+└── webapp
+    ├── static       стили
+    └── WEB-INF      web.xml, JSP-страницы и общая шапка/подвал
+```
+
+Запрос проходит слои строго по порядку: **сервлет → сервис → DAO → база данных**. Сервлеты не работают с базой напрямую, а вся бизнес-логика находится в сервисах. Сервисы зависят от интерфейсов DAO, поэтому в тестах базу легко заменить заглушкой.
+
+## База данных
+
+```mermaid
+erDiagram
+    users ||--o{ loans : "оформляет"
+    books ||--o{ loans : "выдаётся"
+    books ||--o{ book_authors : "авторы"
+    authors ||--o{ book_authors : "книги"
+
+    users {
+        bigint id PK
+        varchar email UK
+        varchar password_hash
+        varchar name
+        varchar role
+    }
+    books {
+        bigint id PK
+        varchar title
+        varchar isbn UK
+        int publish_year
+        int total_copies
+        int available_copies
+    }
+    authors {
+        bigint id PK
+        varchar name UK
+    }
+    book_authors {
+        bigint book_id PK, FK
+        bigint author_id PK, FK
+    }
+    loans {
+        bigint id PK
+        bigint user_id FK
+        bigint book_id FK
+        varchar status
+        timestamp loaned_at
+        date due_date
+        timestamp returned_at
+    }
+```
+
+Жизненный цикл выдачи (поле `loans.status`):
+
+```mermaid
+stateDiagram-v2
+    [*] --> ORDERED: заказ читателем
+    ORDERED --> ACTIVE: выдача библиотекарем
+    ORDERED --> [*]: отмена, запись удаляется
+    ACTIVE --> RETURNED: приём возврата
+    RETURNED --> [*]
+```
+
+Что заложено в схему:
+
+- **Роль** пользователя либо `READER`, либо `LIBRARIAN`, это проверяет `CHECK`. Через регистрацию можно стать только читателем.
+- **Количество экземпляров.** `available_copies` хранится в таблице и меняется при заказе, отмене и возврате. Ограничения `CHECK` не дают ему стать отрицательным или больше `total_copies`.
+- **Одна открытая выдача на пару «читатель и книга».** Это частичный уникальный индекс по `loans(user_id, book_id)` для статусов `ORDERED` и `ACTIVE`. Он не мешает взять ту же книгу снова после возврата.
+- **Авторы.** Связь «многие ко многим» через `book_authors`. Уникальный индекс по `LOWER(name)` не позволяет завести двух авторов, которые отличаются только регистром.
+- **История выдач.** У `loans` нет каскадного удаления, поэтому книгу, по которой есть выдачи, удалить нельзя. Связи книги с авторами при удалении книги удаляются каскадно.
+- **Индексы** есть на `LOWER(books.title)`, `loans(user_id)`, `loans(book_id)` и `book_authors(author_id)`.
+
+Скрипт создания таблиц лежит в `src/main/resources/schema.sql`.
